@@ -20,6 +20,7 @@ public class NoteDetailsActivity extends AppCompatActivity {
     TextView pageTitleTextView;
     String title, content, docId;
     boolean isEditMode = false;
+    TextView deleteNoteTextViewBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +30,7 @@ public class NoteDetailsActivity extends AppCompatActivity {
         contentEditText = findViewById(R.id.notes_content_text);
         saveNoteBtn = findViewById(R.id.save_note_btn);
         pageTitleTextView = findViewById(R.id.page_title);
+        deleteNoteTextViewBtn = findViewById(R.id.delete_note_text_view_btn);
 
         // receive data
         title = getIntent().getStringExtra("title");
@@ -44,8 +46,11 @@ public class NoteDetailsActivity extends AppCompatActivity {
 
         if (isEditMode) {
             pageTitleTextView.setText("Edit your note");
+            deleteNoteTextViewBtn.setVisibility(View.VISIBLE);
         }
         saveNoteBtn.setOnClickListener(v -> saveNote());
+
+        deleteNoteTextViewBtn.setOnClickListener(v->deleteNoteFromFirebase());
 
     }
 
@@ -69,7 +74,7 @@ public class NoteDetailsActivity extends AppCompatActivity {
             // update the note
             documentReference = Utility.getCollectionReferenceForNotes().document(docId);
         } else {
-            // create new note
+            // create a new note
             documentReference = Utility.getCollectionReferenceForNotes().document();
         }
         documentReference.set(note).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -80,6 +85,25 @@ public class NoteDetailsActivity extends AppCompatActivity {
                     finish();
                 } else {
                     Utility.ShowToast(NoteDetailsActivity.this, "Failed while adding note");
+                }
+            }
+        });
+    }
+    private void deleteNoteFromFirebase() {
+        DocumentReference documentReference;
+
+        documentReference = Utility.getCollectionReferenceForNotes().document(docId);
+
+        documentReference.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    // note is deleted
+                    Utility.ShowToast(NoteDetailsActivity.this, "Node deleted successfully");
+                    finish();
+                }
+                else {
+                    Utility.ShowToast(NoteDetailsActivity.this, "Failed while deleting note");
                 }
             }
         });
