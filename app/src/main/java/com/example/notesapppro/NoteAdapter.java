@@ -21,6 +21,7 @@ public class NoteAdapter extends FirestoreRecyclerAdapter<Note, NoteAdapter.Note
      * @param options
      */
     Context context;
+
     public NoteAdapter(@NonNull FirestoreRecyclerOptions<Note> options, Context context) {
         super(options);
         this.context = context;
@@ -31,17 +32,36 @@ public class NoteAdapter extends FirestoreRecyclerAdapter<Note, NoteAdapter.Note
         holder.titleTextView.setText(note.title);
         holder.contentTextView.setText(note.content);
         holder.timestampTextView.setText(Utility.timestampToString(note.timestamp));
+
+        holder.itemView.setOnClickListener((v) -> {
+            Intent intent = new Intent(context, NoteDetailsActivity.class);
+            intent.putExtra("title", note.title);
+            intent.putExtra("content", note.content);
+            String docId = this.getSnapshots().getSnapshot(position).getId();
+            intent.putExtra("docId", docId);
+            context.startActivity(intent);
+        });
+
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, NoteDetailsActivity.class);
+            intent.putExtra("title", note.title);
+            intent.putExtra("content", note.content);
+            String docId = this.getSnapshots().getSnapshot(position).getId();
+            intent.putExtra("docId", docId);
+            context.startActivity(intent);
+        });
     }
 
     @NonNull
     @Override
     public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_note_item,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_note_item, parent, false);
         return new NoteViewHolder(view);
     }
 
-    class NoteViewHolder extends RecyclerView.ViewHolder{
-        TextView titleTextView,contentTextView,timestampTextView;
+    class NoteViewHolder extends RecyclerView.ViewHolder {
+        TextView titleTextView, contentTextView, timestampTextView;
 
         public NoteViewHolder(@NonNull View itemView) {
             super(itemView);
